@@ -50,6 +50,21 @@ export function formatSwipeCounter(current, total) {
     return `${current + 1}/${total}`;
 }
 
+/** Capture edits and attachments before leaving the selected user variant. */
+export function captureUserSwipeInfo(message) {
+    if (!message.is_user || !Array.isArray(message.swipes)) return;
+    const swipeId = message.swipe_id || 0;
+    message.swipe_info ??= [];
+    message.swipes[swipeId] = message.mes;
+    message.swipe_info[swipeId] = {
+        ...message.swipe_info[swipeId],
+        send_date: message.send_date,
+        gen_started: message.gen_started,
+        gen_finished: message.gen_finished,
+        extra: structuredClone(message.extra || {}),
+    };
+}
+
 /**
  * Sync reasoning and model data from swipe_info to message extra
  * @param {Object} message - The message object
@@ -61,6 +76,10 @@ export function syncReasoningFromSwipeInfo(message, swipeId) {
     }
 
     const swipeInfo = message.swipe_info[swipeId];
+    // Manual user variants own their attachments and other per-swipe metadata.
+    if (message.is_user) {
+        message.extra = structuredClone(swipeInfo.extra || {});
+    }
     if (!message.extra) {
         message.extra = {};
     }

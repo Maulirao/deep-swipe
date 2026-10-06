@@ -25,7 +25,7 @@ export async function registerSlashCommands(dswipeBack, dswipeForward) {
 
         SlashCommandParser.addCommandObject(SlashCommand.fromProps({
             name: 'dswipe',
-            helpString: 'Deep Swipe - Generate or navigate swipes. Usage: /dswipe back|forward [messageId]',
+            helpString: 'Deep Swipe - Navigate swipes, branch into a blank user turn, or regenerate an assistant swipe. Usage: /dswipe back|forward [messageId]',
             returns: 'string',
             aliases: ['ds'],
             splitUnnamedArgument: true,

@@ -2,7 +2,7 @@
 <div class="deep-swipe-extension-settings">
     <div class="inline-drawer">
         <div class="inline-drawer-toggle inline-drawer-header">
-            <b>Deep Swipe</b>
+            <b>Deep Swipe — Manual User Branches</b>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
         <div class="inline-drawer-content">
@@ -18,7 +18,7 @@
  
             <div class="deep-swipe-extension_block flex-container">
                 <input id="deep_swipe_user_swipes" type="checkbox" checked />
-                <label for="deep_swipe_user_swipes">Enable Deep Swipes on user messages</label>
+                <label for="deep_swipe_user_swipes">Enable blank user swipes and branching</label>
             </div>
 
             <div class="deep-swipe-extension_block flex-container">
@@ -32,12 +32,7 @@
             </div>
  
             <div class="deep-swipe-extension_block">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <label for="deep_swipe_impersonation_prompt">User Impersonation Prompt:</label>
-                    <div id="deep_swipe_reset_prompt" class="menu_button fa-solid fa-rotate-left" title="Reset to default prompt" style="padding: 5px 8px; font-size: 12px;"></div>
-                </div>
-                <textarea id="deep_swipe_impersonation_prompt" rows="3" style="width: 100%; margin-top: 5px;"></textarea>
-                <small>Use <code>{{user}}</code> for the user name and <code>{{input}}</code> for the original message.</small>
+                <small>Swipe past the last user variant to branch at that turn and open a blank editor. Write your replacement, then save the edit. Later messages stay in the original chat. No AI request is made for user swipes.</small>
             </div>
  
             <div class="deep-swipe-extension_block">

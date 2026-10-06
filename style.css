@@ -475,9 +475,9 @@ body:not(.swipeAllMessages) .mes .deep-swipe-right {
     opacity: 1;
 }
 
-/* Hide navigation on last message (native swipe buttons exist there) */
-.last_mes .deep-swipe-left,
-.last_mes .deep-swipe-right {
+/* Last assistant messages have native controls; user tips need ours. */
+.last_mes:not([is_user="true"]) .deep-swipe-left,
+.last_mes:not([is_user="true"]) .deep-swipe-right {
     display: none !important;
 }
 

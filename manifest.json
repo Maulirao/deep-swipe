@@ -1,11 +1,11 @@
 {
-    "display_name": "Deep Swipe",
+    "display_name": "Deep Swipe — Manual User Branches",
     "loading_order": 10,
     "requires": [],
     "optional": [],
     "js": "index.js",
     "css": "style.css",
-    "author": "Rurijian",
-    "version": "1.5.4",
-    "homePage": "https://github.com/Rurijian/deep-swipe"
+    "author": "Rurijian / Maulirao",
+    "version": "1.6.0",
+    "homePage": "https://github.com/Maulirao/deep-swipe"
 }

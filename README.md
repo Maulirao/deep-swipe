@@ -1,148 +1,48 @@
-# DEEP SWIPE              
+# Deep Swipe — Manual User Branches
 
-A SillyTavern extension that allows you to swipe (regenerate) any message in your chat history, not just the last one. Clone the native swipe experience for every message!
+A fork of [Rurijian/deep-swipe](https://github.com/Rurijian/deep-swipe) for writing your own alternative user turns in SillyTavern.
 
-https://private-user-images.githubusercontent.com/3434910/544931138-5d64a252-b537-4434-9e66-de8ed5a008af.mp4
+## User swipes
 
+Click the right arrow on a user message. Existing variants still navigate normally. When you swipe past the last variant:
 
+1. SillyTavern creates and opens a separate chat branch ending at that exact user turn.
+2. The user message gets a new, empty swipe, keeping its previous variants.
+3. Its inline message editor opens with a blank text area. Type your replacement and save the edit.
+4. That user turn is now the conversation tip. Request an assistant response when you are ready.
 
+No model request, impersonation prompt, or automatic assistant response runs for this action. The original conversation retains all later messages. The new branch is saved before editing, so cancelling the editor leaves a blank variant; use the left arrow to recover the previous text or delete the blank swipe.
 
+User navigation also works on the final message of the new branch. Branching is blocked while generation, another branch operation, or message editing is in progress.
 
-## Features
+## Assistant swipes
 
-- **Deep Swipe**: Generate new swipes anywhere in the context! User or Assistant! It doesn't matter! Swipe everything!!
-- **Read While Generating**: Continue reading the previous swipe while a new one generates! An overlay preserves the content so you don't lose your place!
-- **Deep Impersonate for User Messages**: Generate alternative user messages using a customizable impersonation prompt. Swipe old log with new based chinese models! Change the past, but lazily! *DIRECTORMAXXING*
-- **Deep Regenerate for Assistant Messages**: Regenerate any AI response, not just the last one! Fix that one awkward reply from 20 messages ago!
-- **Navigation Chevrons**: Browse through existing swipes with left/right arrows on each message, just like native, but more!
-- **Swipe Counters**: See swipe count (e.g., "2/5") on each message, just like native, but more!
-- **Beautiful Polish**: Fade-in/fade-out overlays, spinning throbbers, completion messages, and pulsing border highlights! It's fancy!
-- **Non-destructive**: Uses a truncate-generate-restore pattern that preserves your chat history
-- **Smart DOM Handling**: Prevents message hijacking with clever mesid invalidation tricks! Tech wizardry!
-
-
-**⚠️WARNING⚠️ Deep Swipes high up in the context will break cache hits!**
-
-**⚠️EXTENSION CONFLICTS⚠️**
-Deep Swipe is **INCOMPATIBLE** with Prompt Inspector. Due to the way both extensions interact with the generation process:
-- **Deep Swipe will REFUSE to generate** while Prompt Inspector's "Inspect Prompts" feature is enabled
-- You must disable Prompt Inspector (click "Stop Inspecting" in the wand menu) before using Deep Swipe generation
-- Navigating between existing swipes still works while PI is enabled
-
-This is a hard compatibility limit - the extensions fundamentally conflict in how they handle generation state.
-
-## But who cares, Based Swipe-Fiend!
+Assistant messages retain upstream Deep Swipe behavior: navigate existing variants or generate an alternative response deep in the conversation. These operations still use a model. Assistant generation retains the upstream incompatibility with Prompt Inspector; manual user branching works while Prompt Inspector is enabled.
 
 ## Installation
 
-1. Copy https://github.com/Rurijian/deep-swipe into extensions/install extensions (top-right button) as all-users
-2. Refresh Sillytavern maybe? It's probably fine though
-3. The extension will be available immediately
+Install this repository URL using SillyTavern's Extensions → Install extension:
 
-## Usage
+`https://github.com/Maulirao/deep-swipe`
 
-### Finding Message IDs
+Refresh SillyTavern after installation. If the original Deep Swipe is installed, replace its installation with this fork rather than loading both copies. Both use the same settings and command identifiers.
 
-If you want to use the slash commands, I recommend you turn on message IDs so you can see which number you want to Deep Swipe. But, you probably already know this, if you're using slash commands.  Use the built-in `/messages` command.
+In Extensions → Deep Swipe — Manual User Branches, enable **blank user swipes and branching** and **Deep Swipe navigation**. The user impersonation prompt has been removed. Assistant settings apply only to generated assistant swipes.
 
-## But you're not using any of this! Just hit the little chevron arrows!
+This extension uses SillyTavern's native `branchChat` and `messageEdit` exports. Both individual character chats and group chats use the native branch flow. No build step or dependency installation is required.
 
-### Examples
+## Commands
 
-Deep Swipe provides navigation controls on each message:
+- `/dswipe forward 3` (or `/ds forward 3`): navigate the next variant, or branch into a blank user swipe at message 3. For assistant messages, generates a new swipe after the last variant.
+- `/dswipe back 3`: return to the previous variant.
+- `/ddelswipe 3` (or `/dds 3`): delete the selected variant.
 
-#### Navigation Arrows
-- **Left arrow** (←): Go to previous swipe
-- **Right arrow** (→): Go to next swipe (or generate new if at last)
+## Development
 
-```
-Slash Commands
-/dswipe back [id] or /ds back [id]
-Function: Navigate to the previous swipe on a message
+Run `npm test` with Node.js 24 or newer. The tests execute the extension's modules with SillyTavern host boundaries replaced, covering blank branch creation, conversation preservation, saved navigation, editor placement, and failure/busy handling. Check the native UI in your SillyTavern installation after installing.
 
-# Generate a new response for message #3
-/dswipe forward 3
+## Credits and license
 
-# Navigate to previous swipe on message #7
-/dswipe back 7
+Original Deep Swipe by Rurijian. Manual user branching fork by Maulirao.
 
-# Using the short alias
-/ds forward 10
-
-```
-#### Swipe Counter
-- Shows current swipe position (e.g., "2/5")
-- Available on both AI and user messages
-
-**Note:** Navigation controls are hidden on the last message (which has native swipe buttons) and on system messages.
-
-
-### Settings
-
-Access the settings in **Extensions > Deep Swipe**:
-
-- **Enable Deep Swipe**: Master toggle for the extension
-- **Show Deep Swipe navigation**: Display navigation arrows and counters on messages
-- **Enable Deep Swipes on user messages**: Allow swiping user messages (Deep Impersonate)
-- **Enable Deep Swipes on assistant messages**: Allow regenerating any AI response
-- **Impersonation Prompt**: Customizable prompt for generating user message swipes
-  - Use `{{user}}` for the user name
-  - Use `{{input}}` for the original message content
-  - Default: `NEW DIRECTION: Could you re-write/improve my last reply as if you were me? Just post the reply.`
-- **Assistant Impersonation Prompt**: Optional custom prompt for assistant swipes
-- **Auto-advance to latest swipe**: Automatically switch to newly generated swipes
-
-### Deep Impersonate (User Message Swipes)
-
-When enabled, user messages can be swiped to generate alternative versions. The extension uses a guided impersonation approach:
-
-1. The current user message is used as input
-2. The impersonation prompt guides the AI to rewrite/improve as the user
-3. The AI generates an alternative response following the prompt's guidance
-4. The new response is saved as a swipe
-
-This is useful for:
-- Exploring different ways to express the same idea
-- Adjusting tone or style of user messages
-- Creating variations for branching storylines
-- Fixing that one reply you wish you worded better
-
-### Deep Regenerate (Assistant Message Swipes)
-
-When enabled, any assistant message can be regenerated, not just the last one:
-
-1. The target message is preserved with a beautiful overlay showing current content
-2. A temp message triggers generation at the bottom of context
-3. The AI generates a fresh response
-4. The new response is captured and saved as a new swipe
-5. Fancy animations show completion!
-
-This is useful for:
-- Fixing awkward responses buried in the chat history
-- Exploring different AI personalities mid-conversation
-- Creating alternative story branches
-
-
-## How It Works
-
-Deep Swipe uses a sophisticated "truncate-generate-restore" pattern:
-
-1. **Save**: Messages after the target are temporarily saved
-2. **Overlay**: An overlay shows the current content during generation
-3. **Truncate**: Chat is truncated to isolate the target context
-4. **Generate**: A new swipe is generated at the bottom of context (like user swipes!)
-5. **Capture**: The generated response is captured as a new swipe
-6. **Restore**: The saved messages are re-inserted into the chat
-7. **Polish**: Fancy animations and border highlights guide your eyes!!!
-8. **Refresh**: The UI is updated to show the new swipe
-
-For user messages, the extension uses guided impersonation with a customizable prompt.
-For assistant messages, the overlay lets you "read while generating" - based
-
-
-MIT License 
-
-## Credits
-
-Created by Rurijian for SillyTavern
-Version 1.3.0 - Now with extra polish!
+Upstream declares the project MIT licensed; this fork retains that declaration and the upstream source attribution.

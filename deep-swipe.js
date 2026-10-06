@@ -11,8 +11,9 @@ import { getContext } from '../../../extensions.js';
 import { Generate, eventSource, event_types, cancelDebouncedChatSave, saveChatConditional, stopGeneration } from '../../../../script.js';
 import { updateReasoningUI, ReasoningType } from '../../../../scripts/reasoning.js';
 import { getSettings, EXTENSION_NAME, DEFAULT_ASSISTANT_PROMPT } from './config.js';
-import { syncReasoningFromSwipeInfo, error, isValidMessageId } from './utils.js';
+import { captureUserSwipeInfo, syncReasoningFromSwipeInfo, error, isValidMessageId } from './utils.js';
 import { updateMessageSwipeUI } from './ui.js';
+import { createManualUserSwipe } from './user-branches.js';
 
 // Module-level variable to store complete chat backup before generation
 // This ensures we have a clean state to restore from if corruption occurs
@@ -49,6 +50,7 @@ export async function handleUserSwipeBack(message, messageId, targetSwipeId, mes
     const context = getContext();
     const chat = context.chat;
 
+    captureUserSwipeInfo(message);
     // Manually update swipe_id
     message.swipe_id = targetSwipeId;
 
@@ -86,6 +88,8 @@ export async function handleUserSwipeBack(message, messageId, targetSwipeId, mes
  * @param {boolean} isUserMessage - Whether this is a user message (true) or assistant (false)
  */
 export async function generateMessageSwipe(message, messageId, context, isUserMessage = true) {
+    if (isUserMessage) return createManualUserSwipe(messageId);
+
     // Check if Prompt Inspector is enabled - BLOCK generation if so
     const promptInspectorEnabled = localStorage.getItem('promptInspectorEnabled') === 'true';
     if (promptInspectorEnabled) {
@@ -1056,6 +1060,7 @@ export async function dswipeBack(args, messageId) {
 
     // For user messages, manually update swipe (same as UI button)
     if (message.is_user) {
+        captureUserSwipeInfo(message);
         message.swipe_id = targetSwipeId;
         message.mes = message.swipes[targetSwipeId];
         syncReasoningFromSwipeInfo(message, targetSwipeId);
@@ -1068,6 +1073,7 @@ export async function dswipeBack(args, messageId) {
         });
         
         updateMessageSwipeUI(messageId);
+        await context.saveChat();
         return `Navigated to swipe ${message.swipe_id + 1}/${message.swipes.length}`;
     }
 
@@ -1137,6 +1143,7 @@ export async function dswipeForward(args, messageId) {
         
         // For user messages, manually update swipe (same as UI button)
         if (message.is_user) {
+            captureUserSwipeInfo(message);
             message.swipe_id = targetSwipeId;
             message.mes = message.swipes[targetSwipeId];
             syncReasoningFromSwipeInfo(message, targetSwipeId);
@@ -1149,6 +1156,7 @@ export async function dswipeForward(args, messageId) {
             });
             
             updateMessageSwipeUI(messageId);
+            await context.saveChat();
             return `Navigated to swipe ${message.swipe_id + 1}/${message.swipes.length}`;
         }
         
@@ -1193,8 +1201,7 @@ export async function dswipeForward(args, messageId) {
     
     // No more swipes to navigate to - generate a new one
     if (message.is_user) {
-        await generateMessageSwipe(message, messageId, context);
-        return 'Generated new swipe';
+        return createManualUserSwipe(messageId);
     }
 
     await generateMessageSwipe(message, messageId, context, false);

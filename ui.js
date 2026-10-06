@@ -14,6 +14,7 @@ import {
     isMessageSwipeable,
     formatSwipeCounter,
     syncReasoningFromSwipeInfo,
+    captureUserSwipeInfo,
     isAnyMessageBeingEdited,
     getCurrentEditMessageId,
     trackEditMessage,
@@ -49,7 +50,7 @@ export function shouldAddUiComponents(messageElement) {
     // Check if this is actually the last message (not just by class)
     // SillyTavern doesn't remove last_mes class from previous messages
     const isLastMessage = messageId === chat.length - 1;
-    if (isLastMessage) return false;
+    if (isLastMessage && !chat[messageId]?.is_user) return false;
 
     if (messageElement.getAttribute('is_system') === 'true') return false;
 
@@ -96,7 +97,9 @@ export function updateMessageSwipeUI(messageId, forceCurrentId) {
     // Update right arrow tooltip based on position
     const rightArrow = messageElement.querySelector('.deep-swipe-right');
     if (rightArrow) {
-        rightArrow.title = currentId >= swipeCount - 1 ? 'Generate new swipe' : 'Next swipe';
+        rightArrow.title = currentId >= swipeCount - 1
+            ? (message.is_user ? 'Branch here and write a blank user swipe' : 'Generate new swipe')
+            : 'Next swipe';
     }
 
     // Update left arrow visibility based on swipe count
@@ -238,7 +241,9 @@ export function addSwipeNavigationToMessage(messageId) {
     if (!message.is_user) {
         rightArrow.classList.add('assistant-swipe-arrow');
     }
-    rightArrow.title = currentSwipe >= swipeCount - 1 ? 'Generate new swipe' : 'Next swipe';
+    rightArrow.title = currentSwipe >= swipeCount - 1
+        ? (message.is_user ? 'Branch here and write a blank user swipe' : 'Generate new swipe')
+        : 'Next swipe';
     // Force visibility to override native SillyTavern hiding rules
     rightArrow.style.setProperty('display', 'flex', 'important');
     rightArrow.style.setProperty('opacity', '0.5', 'important');
@@ -279,7 +284,7 @@ export function addSwipeNavigationToMessage(messageId) {
         if (currentId >= totalSwipes - 1) {
             // GENERATE NEW SWIPE: Check for Prompt Inspector first
             const promptInspectorEnabled = localStorage.getItem('promptInspectorEnabled') === 'true';
-            if (promptInspectorEnabled) {
+            if (!msg.is_user && promptInspectorEnabled) {
                 toastr.error(
                     'Deep Swipe generation is disabled while Prompt Inspector is enabled.\n\n' +
                     'Please disable Prompt Inspector (click "Stop Inspecting" in the wand menu) to use Deep Swipe generation.',
@@ -293,7 +298,12 @@ export function addSwipeNavigationToMessage(messageId) {
             // This ensures overlay is created at the right time with proper throbber/stop button
             
             if (dswipeForwardFn) {
-                await dswipeForwardFn({}, messageId);
+                try {
+                    await dswipeForwardFn({}, messageId);
+                } catch (err) {
+                    error('Could not create swipe:', err);
+                    toastr.error(err.message, 'Deep Swipe');
+                }
             }
         } else {
             // CRITICAL FIX: Manually handle swipe navigation instead of relying on native swipe.right()
@@ -306,6 +316,7 @@ export function addSwipeNavigationToMessage(messageId) {
 
             // For user messages, manually update swipe (SillyTavern blocks user message swipes)
             if (msg.is_user) {
+                captureUserSwipeInfo(msg);
                 msg.swipe_id = targetSwipeId;
                 msg.mes = msg.swipes[targetSwipeId];
 
@@ -377,6 +388,7 @@ export function addSwipeNavigationToMessage(messageId) {
                 scroll: false,
                 showSwipes: true
             });
+            await ctx.saveChat();
 
             // Update UI including reasoning
             updateMessageSwipeUI(messageId);

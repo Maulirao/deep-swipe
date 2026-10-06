@@ -19,7 +19,7 @@ export const EXTENSION_NAME = 'deep-swipe';
  * Path to the extension folder
  * @constant {string}
  */
-export const extensionFolderPath = `scripts/extensions/third-party/${EXTENSION_NAME}`;
+export const extensionFolderPath = new URL('.', import.meta.url).pathname.replace(/\/$/, '');
 
 /**
  * Default impersonation prompt for user message swipes
@@ -42,7 +42,6 @@ export const defaultSettings = {
     swipeNavigation: true,
     userSwipes: true,
     assistantSwipes: true,
-    impersonationPrompt: DEFAULT_IMPERSONATION_PROMPT,
     assistantPrompt: DEFAULT_ASSISTANT_PROMPT,
     keepSwipeVisible: true,
     autoAdvanceToLatest: false,
@@ -89,11 +88,6 @@ export function loadSettings() {
     const assistantSwipesCheckbox = document.getElementById('deep_swipe_assistant_swipes');
     if (assistantSwipesCheckbox) {
         assistantSwipesCheckbox.checked = extension_settings[EXTENSION_NAME].assistantSwipes ?? defaultSettings.assistantSwipes;
-    }
-
-    const impersonationPromptTextarea = document.getElementById('deep_swipe_impersonation_prompt');
-    if (impersonationPromptTextarea) {
-        impersonationPromptTextarea.value = extension_settings[EXTENSION_NAME].impersonationPrompt ?? DEFAULT_IMPERSONATION_PROMPT;
     }
 
     const autoAdvanceCheckbox = document.getElementById('deep_swipe_auto_advance');

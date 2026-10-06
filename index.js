@@ -15,7 +15,6 @@ import { updateReasoningUI } from '../../../../scripts/reasoning.js';
 import {
     EXTENSION_NAME,
     extensionFolderPath,
-    DEFAULT_IMPERSONATION_PROMPT,
     DEFAULT_ASSISTANT_PROMPT,
     defaultSettings,
     loadSettings,
@@ -193,15 +192,6 @@ function onUserSwipesChange(event) {
 }
 
 /**
- * Handle impersonation prompt change
- * @param {Event} event - The input event
- */
-function onImpersonationPromptChange(event) {
-    const value = event.target.value;
-    updateSetting('impersonationPrompt', value);
-}
-
-/**
  * Handle assistant prompt change
  * @param {Event} event - The input event
  */
@@ -237,18 +227,6 @@ function onAssistantSwipesChange(event) {
                 }
             });
         }
-    }
-}
-
-/**
- * Handle reset prompt button click
- */
-function onResetPromptClick() {
-    const textarea = document.getElementById('deep_swipe_impersonation_prompt');
-    if (textarea) {
-        textarea.value = DEFAULT_IMPERSONATION_PROMPT;
-        updateSetting('impersonationPrompt', DEFAULT_IMPERSONATION_PROMPT);
-        toastr.info('Impersonation prompt reset to default', 'Deep Swipe');
     }
 }
 
@@ -295,8 +273,6 @@ jQuery(async () => {
         document.getElementById('deep_swipe_user_swipes')?.addEventListener('change', onUserSwipesChange);
         document.getElementById('deep_swipe_assistant_swipes')?.addEventListener('change', onAssistantSwipesChange);
         document.getElementById('deep_swipe_auto_advance')?.addEventListener('change', onAutoAdvanceChange);
-        document.getElementById('deep_swipe_impersonation_prompt')?.addEventListener('input', onImpersonationPromptChange);
-        document.getElementById('deep_swipe_reset_prompt')?.addEventListener('click', onResetPromptClick);
         document.getElementById('deep_swipe_assistant_prompt')?.addEventListener('input', onAssistantPromptChange);
         document.getElementById('deep_swipe_reset_assistant_prompt')?.addEventListener('click', onResetAssistantPromptClick);
 

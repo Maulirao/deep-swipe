@@ -2,6 +2,15 @@
 
 All notable changes to the Deep Swipe extension will be documented in this file.
 
+## [1.6.0] - 2026-10-05 — Manual User Branches fork
+
+- User swipes past the final variant create a native chat branch ending at the selected turn, select a blank variant, and open its message editor.
+- User swipes never request model generation and work with Prompt Inspector enabled.
+- Preserve the original chat and later messages; save user swipe navigation.
+- Keep extension controls on the last user message and remove user impersonation settings.
+- Resolve the settings template relative to the installed extension folder.
+- Add automated coverage for branching, editor placement, persistence, and failure handling.
+
 ## [1.5.5] - 2026-02-20
 
 ### Fixed
